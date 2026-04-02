@@ -1,0 +1,11 @@
+{
+  "name": "docker-tutorial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.mjs",
+  "author": "Katmetax",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
