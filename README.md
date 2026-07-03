@@ -41,6 +41,8 @@ NOTE: Images need to be re-built if there are changes in the code. An image is r
 
 Each instruction in an image creates a separate cacheable layer. These layers facilitate faster image rebuilding and promote easier sharing, making them essential for efficient container management.
 
+When a layer is changed, all subsequent layers get re-run.
+
 ## Running a container
 
 Run in dettached mode:
@@ -116,3 +118,90 @@ You can then start a container based on that image:
 ```bash
 docker run -p [LOCAL_PORT]:[EXPOSED_PORT] -d --rm --name [CONTAINER_NAME] [IMAGE_NAME]:[IMAGE_TAG]
 ```
+
+## Volumes
+
+Volumes allow you to store data across containers. They are managed by Docker.
+
+You can add an anonymous volume in the `Dockerfile` like so:
+```
+VOLUME ["/app/storage/path"]
+```
+You can only access this volume with the `docker volume ls` command as Docker manages this and the volume will be removed when the container is removed.
+
+To create a named volume that you can then acess you need to add intructions to the `docker run` command:
+```bash
+docker run -p [LOCAL_PORT]:[EXPOSED_PORT] -d --rm --name [CONTAINER_NAME] -v [VOLUME_NAME]:/app/storage/path [IMAGE_NAME]:[IMAGE_TAG]
+```
+The above will make data persist even if the container is removed as long as you run the container again with the same volume name and path.
+
+So in essence, a named volume is this:
+```
+-v [VOLUME_NAME]:/app/storage/path
+```
+
+### Deleting volumes
+
+You can delete a volume like so:
+```bash
+docker volume ls # to see which volumes exist
+docker volume rm [VOLUME_NAME]
+```
+
+Or if you want to delete all unused volumes you can:
+```bash
+docker volume prune
+```
+
+## Bind mounts
+
+When you make changes to your code you have to rebuild your image which is time consuming. To fix this, we can use bind mounts:
+```bash
+docker run -p [LOCAL_PORT]:[EXPOSED_PORT] -d --rm --name [CONTAINER_NAME] -v [VOLUME_NAME]:/app/storage/path -v $(pwd):/app [IMAGE_NAME]:[IMAGE_TAG]
+```
+This setup essentially mirrors what you have locally to the docker container.
+For this to work you will also need to persist anything that is necessary for the project to run. So for example if you are running a JS app then `node_modules` needs to be persisted otherwise the app will crash. So make sure that you have the below in your `Dockerfile`:
+```
+VOLUME ["/app/node_modules"]
+```
+
+In essence, a bind mount is:
+```
+-v $(pwd):/app
+```
+
+## Environment variables
+
+Environment variables can be added to the `Dockerfile` like so:
+```
+ENV [ENV_VAR_NAME]=[ENV_VAR_VALUE]
+```
+
+And it can also be set (or overriden) as part of the `docker run` command by adding `--env [ENV_VAR_NAME]=[ENV_VAR_VALUE]`:
+```bash
+docker run -p [LOCAL_PORT]:[EXPOSED_PORT] --env [ENV_VAR_NAME]=[ENV_VAR_VALUE] -d --rm --name [CONTAINER_NAME] -v [VOLUME_NAME]:/app/storage/path [IMAGE_NAME]:[IMAGE_TAG]
+```
+You can also use `-e` instead of `--env`. And if you want to add multiple variables you can chain them like `-e [ENV_VAR_NAME]=[ENV_VAR_VALUE] -e [ENV_VAR_NAME]=[ENV_VAR_VALUE]`.
+
+Or you can point docker to your `.env` file like so:
+```bash
+docker run -p [LOCAL_PORT]:[EXPOSED_PORT] --env-file ./.env -d --rm --name [CONTAINER_NAME] -v [VOLUME_NAME]:/app/storage/path [IMAGE_NAME]:[IMAGE_TAG]
+```
+
+## Arguments
+
+You can set arguments in docker that can be changed per build (or rather - image). 
+
+First in the `Dockerfile` make these changes:
+```
+ARG [ARG_NAME]=[ARG_VALUE]
+
+ENV [ENV_VAR_NAME]=$[ARG_NAME] # notice the dollar sign when referencing the set argument
+```
+
+Then you can change the argument value in the build command:
+```bash
+docker build -t feedback-node:dev --build-arg [ARG_NAME]=[ARG_VALUE] .
+```
+This can be useful when building different images for dev/production etc.
+
