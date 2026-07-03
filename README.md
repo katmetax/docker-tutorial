@@ -4,7 +4,7 @@ A project to follow along to [Docker & Kubernetes: The Practical Guide by Maximi
 
 ## Fundamentals
 
-Docker has two main concepts - images and containers.
+Docker's purpose is to run things in isolation and separation. It has two main concepts - images and containers.
 
 ### Containers
 
@@ -204,4 +204,25 @@ Then you can change the argument value in the build command:
 docker build -t feedback-node:dev --build-arg [ARG_NAME]=[ARG_VALUE] .
 ```
 This can be useful when building different images for dev/production etc.
+
+## Network
+
+Out of the box containers can send/receive network requests to/from the WWW. 
+
+To communicate from container to host machine you need to use `host.docker.internal` as the domain.
+
+For container to container requests you need to do a few things...
+
+First you need to create a network:
+```bash
+docker network create [NETWORK_NAME]
+```
+
+Then you can run each of your containers as such:
+```bash
+docker run -p [LOCAL_PORT]:[EXPOSED_PORT] -d --rm --name [CONTAINER_NAME] --network [NETWORK_NAME] [IMAGE_NAME]:[IMAGE_TAG]
+```
+Make sure the [NETWORK_NAME] is the one you created and the same for all containers that you want to share a network.
+
+If you need to point your code to another container that shares the same network, you can just use the [NETWORK_NAME] as the domain.
 
