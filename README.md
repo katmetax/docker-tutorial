@@ -226,3 +226,10 @@ Make sure the [NETWORK_NAME] is the one you created and the same for all contain
 
 If you need to point your code to another container that shares the same network, you can just use the [NETWORK_NAME] as the domain.
 
+### Pointing a frontend container to a backend container
+
+Since frontends run in the browser and not in Docker, if you point your frontend calls to a dockerised backend "domain" (i.e. the container name), Docker is not able to replace this domain.
+
+Instead, just use `localhost` as the domain and make sure to run the backend container with a published port so that the frontend can access it (see [module 5 for example](module-5/multi-01/README.md)).
+
+
