@@ -2,15 +2,17 @@
 
 A project to follow along to [Docker & Kubernetes: The Practical Guide by Maximilian Schwarzmüller](https://www.udemy.com/course/docker-kubernetes-the-practical-guide/). After being exposed to Docker & Kubernetes throughout most of my latest years of being a frontend developer, I've decided to actually learn the concepts properly so I can use Docker & K8s with ease myself. I'm sure I will have a WHALE of a time with this course (ba-dum-tsh).
 
-## Fundamentals
+## Docker
+
+### Fundamentals
 
 Docker's purpose is to run things in isolation and separation. It has two main concepts - images and containers.
 
-### Containers
+**Containers**
 
 Where your application runs.
 
-### Images
+**Images**
 
 These are the blueprints for the containers. It contains code & required tools/runtimes. Multiple containers can be created based on one image.
 
@@ -37,13 +39,15 @@ docker run -p [LOCAL_PORT]:[EXPOSED_PORT] [IMAGE_ID]
 
 NOTE: Images need to be re-built if there are changes in the code. An image is read-only & cached.
 
-### Layers
+**Layers**
 
 Each instruction in an image creates a separate cacheable layer. These layers facilitate faster image rebuilding and promote easier sharing, making them essential for efficient container management.
 
 When a layer is changed, all subsequent layers get re-run.
 
-## Running a container
+---
+
+### Running a container
 
 Run in dettached mode:
 ```bash
@@ -60,8 +64,9 @@ If you need to see console logs then you need to run in attached mode. You can d
 - Doing `docker attach [IMAGE_ID]` if you already have a running container or
 - You can just look at the logs by doing `docker logs [IMAGE_ID]`. You can also add `-f` to tail the logs.
 
+---
 
-## Deleting images and containers
+### Deleting images and containers
 
 Deleting a container (you cannot delete a running container):
 ```bash
@@ -83,15 +88,18 @@ Remove all unused images:
 ```bash
 docker image prune
 ```
+---
 
-## Inspecting images
+### Inspecting images
 
 You can see info about the image such as when it was created, containers, OS, layers etc:
 ```bash 
 docker image inspect [IMAGE_ID]
 ```
 
-## Copying files into/from a container
+---
+
+### Copying files into/from a container
 
 Copy to a container:
 ```bash
@@ -103,7 +111,9 @@ Copy from a container:
 docker cp [IMAGE_NAME]:/[DIR] [LOCAL_DIR_TO_COPY]
 ```
 
-## Naming and tagging images
+---
+
+### Naming and tagging images
 
 You can give your container a custom name. This makes it easier as you don't have to keep looking at all containers to get IDs/names.
 ```bash
@@ -119,7 +129,9 @@ You can then start a container based on that image:
 docker run -p [LOCAL_PORT]:[EXPOSED_PORT] -d --rm --name [CONTAINER_NAME] [IMAGE_NAME]:[IMAGE_TAG]
 ```
 
-## Volumes
+---
+
+### Volumes
 
 Volumes allow you to store data across containers. They are managed by Docker.
 
@@ -140,7 +152,7 @@ So in essence, a named volume is this:
 -v [VOLUME_NAME]:/app/storage/path
 ```
 
-### Deleting volumes
+**Deleting volumes**
 
 You can delete a volume like so:
 ```bash
@@ -153,7 +165,9 @@ Or if you want to delete all unused volumes you can:
 docker volume prune
 ```
 
-## Bind mounts
+----
+
+### Bind mounts
 
 When you make changes to your code you have to rebuild your image which is time consuming. To fix this, we can use bind mounts:
 ```bash
@@ -170,7 +184,9 @@ In essence, a bind mount is:
 -v $(pwd):/app
 ```
 
-## Environment variables
+---
+
+### Environment variables
 
 Environment variables can be added to the `Dockerfile` like so:
 ```
@@ -188,7 +204,9 @@ Or you can point docker to your `.env` file like so:
 docker run -p [LOCAL_PORT]:[EXPOSED_PORT] --env-file ./.env -d --rm --name [CONTAINER_NAME] -v [VOLUME_NAME]:/app/storage/path [IMAGE_NAME]:[IMAGE_TAG]
 ```
 
-## Arguments
+---
+
+### Arguments
 
 You can set arguments in docker that can be changed per build (or rather - image). 
 
@@ -205,7 +223,9 @@ docker build -t feedback-node:dev --build-arg [ARG_NAME]=[ARG_VALUE] .
 ```
 This can be useful when building different images for dev/production etc.
 
-## Network
+---
+
+### Network
 
 Out of the box containers can send/receive network requests to/from the WWW. 
 
@@ -226,13 +246,15 @@ Make sure the [NETWORK_NAME] is the one you created and the same for all contain
 
 If you need to point your code to another container that shares the same network, you can just use the [NETWORK_NAME] as the domain.
 
-### Pointing a frontend container to a backend container
+**Pointing a frontend container to a backend container**
 
 Since frontends run in the browser and not in Docker, if you point your frontend calls to a dockerised backend "domain" (i.e. the container name), Docker is not able to replace this domain.
 
 Instead, just use `localhost` as the domain and make sure to run the backend container with a published port so that the frontend can access it (see [module 5 for example](module-5/multi-01/README.md)).
 
-## Docker compose
+---
+
+### Docker compose
 
 Docker compose is useful for managing multiple containers on the same host. Rather than having to do the build and run commands in the CLI you can create a compose file (`docker-compose.yaml`) instead.
 
@@ -240,7 +262,14 @@ In it, you **must** define the services (containers) and then you can define the
 
 See [module 6 for example](module-6/compose-01/README.md).
 
-## Utility containers
+---
+
+### Utility containers
 
 If you want to run a command, or view something that requires a specific environment to run you can do this using Docker rather than installing things on your local machine. See [module 7 for example](module-7/README.md).
+
+---
+---
+
+## K8s 
 
