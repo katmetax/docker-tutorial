@@ -271,5 +271,64 @@ If you want to run a command, or view something that requires a specific environ
 ---
 ---
 
-## K8s 
+## K8s (Kubernetes)
+
+Kubernetes is relevant for deployment rather than local development. It is an open-source system for orchestrating container deployments that works on any cloud provider. It's like Docker-compose but for multiple machines.
+
+For deployed projects:
+1. Containers might crash or go down and need to be replaced
+2. We might need more container instances for traffic spikes
+3. Incoming traffic should be distributed equally
+
+These things can be solved with:
+1. Container health checks
+2. Autoscaling
+3. Load balancing
+
+> Side note: People seem to pronounce it *cue-ber-KNEE-tes*. The word Kubernetes (κυβερνήτης) is actually Greek and it means "governor". If you're curious about how to pronounce it properly, it's *ki-ver-ΝΙ-tis*. Not a million miles off. But I recommend pronouncing it like everyone else does otherwise people will not understand what you are saying. That's what I do anyway - with any word that is actually Greek.
+
+### Core concepts
+
+**Worker Node**
+Run the containers of your application. Nodes are your machines/virtual instances. You can have multiple worker nodes to run your container.
+**Pod**
+This is your Docker container. You can have multiple pods in one wonder node.
+**Proxy/Config**
+Controls the network traffic and whether the pods can reach the internet.
+
+**Master Node**
+Controls your deployment (i.e. all Worker Nodes).
+**The Control Plane**
+**Various Components**
+Which help with managing the Worker Nodes.
+
+**Services**
+A logical set of Pods with a unique Pod and container specific IP address so they are reachable from the outside world.
+
+All the above form a **Cluster**, which makes up the deployment.
+
+Here is a picture that better explains the above:
+![img](.github/screenshots/k8s_core_concepts.png)
+
+---
+
+### Worker node 
+
+We have the following in a worker node:
+- Pod: These are created and managed by K8s. You can have multiple containers and volumes in a pod.
+- Docker (for obvious reasons)
+- Kubelet: Handles the communication between the master and worker nodes
+- Kube-proxy: Managed Node and Pod network communication
+
+---
+
+### Master node
+
+We have the following in the master node:
+- API server: API for the kubelets to communicate
+- Scheduler: Watches for new Pods, selects Worker Nodes to run them on
+- Kube-Controller-Manager: Watches and controls worker nodes, correct number of pods etc.
+- Cloud-Controller-Manager: Cloud Provider specific manager
+
+---
 
