@@ -232,4 +232,10 @@ Since frontends run in the browser and not in Docker, if you point your frontend
 
 Instead, just use `localhost` as the domain and make sure to run the backend container with a published port so that the frontend can access it (see [module 5 for example](module-5/multi-01/README.md)).
 
+## Docker compose
 
+Docker compose is useful for managing multiple containers on the same host. Rather than having to do the build and run commands in the CLI you can create a compose file (`docker-compose.yaml`) instead.
+
+In it, you **must** define the services (containers) and then you can define the published ports, envrinment variables, volumes, networks etc.
+
+See [module 6 for example](module-6/compose-01/README.md).

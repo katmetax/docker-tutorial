@@ -1,0 +1,49 @@
+# Docker compose version to use. You can find the available versions on the official Docker site.
+version: "3.8"
+services:
+  mongodb:
+    image: "mongo"
+    volumes: 
+      - data:/data/db
+    # environment:
+    #   key: value
+    # env_file:
+    #   - ./env/mongo.env
+    # We don't need to specify the detached. By default services will be detached when running docker compose.
+    # We also don't need to create and specify a network because docker compose puts everything in a shared network by default.
+  backend:
+    build: ./backend
+    # If you need more specifications you can add them like this
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile-dev - This is handy if your Dockerfile has a different name
+    #   args:
+    #     some-args: 1
+    # env_file:
+    #   - ./env/backend.env
+    ports:
+      - "80:80"
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+    # Combo equivalent to the -it command
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+
+
+# This tells Docker that it should create named volumes for each service
+volumes:
+  data:
+  logs:
