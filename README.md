@@ -1,4 +1,4 @@
-# Docker Tutorial
+# Docker & K8s Tutorial
 
 A project to follow along to [Docker & Kubernetes: The Practical Guide by Maximilian Schwarzmüller](https://www.udemy.com/course/docker-kubernetes-the-practical-guide/). After being exposed to Docker & Kubernetes throughout most of my latest years of being a frontend developer, I've decided to actually learn the concepts properly so I can use Docker & K8s with ease myself. I'm sure I will have a WHALE of a time with this course (ba-dum-tsh).
 
@@ -236,6 +236,11 @@ Instead, just use `localhost` as the domain and make sure to run the backend con
 
 Docker compose is useful for managing multiple containers on the same host. Rather than having to do the build and run commands in the CLI you can create a compose file (`docker-compose.yaml`) instead.
 
-In it, you **must** define the services (containers) and then you can define the published ports, envrinment variables, volumes, networks etc.
+In it, you **must** define the services (containers) and then you can define the published ports, environnment variables, volumes, networks etc.
 
 See [module 6 for example](module-6/compose-01/README.md).
+
+## Utility containers
+
+If you want to run a command, or view something that requires a specific environment to run you can do this using Docker rather than installing things on your local machine. See [module 7 for example](module-7/README.md).
+
