@@ -285,14 +285,14 @@ These things can be solved with:
 2. Autoscaling
 3. Load balancing
 
-> Side note: People seem to pronounce it *cue-ber-KNEE-tes*. The word Kubernetes (κυβερνήτης) is actually Greek and it means "governor". If you're curious about how to pronounce it properly, it's *ki-ver-ΝΙ-tis*. Not a million miles off. But I recommend pronouncing it like everyone else does otherwise people will not understand what you are saying. That's what I do anyway - with any word that is actually Greek.
+> Side note: People seem to pronounce it *cue-ber-KNEE-tes*. The word Kubernetes (κυβερνήτης) is actually Greek and it means "governor". If you're curious about how to pronounce it properly, it's *key-ver-KNEE-tis*. Not a million miles off. But I recommend pronouncing it like everyone else does otherwise people will not understand what you are saying. That's what I do anyway - with any word that is actually Greek.
 
 ### Core concepts
 
 **Worker Node**
 Run the containers of your application. Nodes are your machines/virtual instances. You can have multiple worker nodes to run your container.
 **Pod**
-This is your Docker container. You can have multiple pods in one wonder node.
+This is your Docker container. You can have multiple pods in one worker node. Pods are designed to be ephemeral - data does not persist by default.
 **Proxy/Config**
 Controls the network traffic and whether the pods can reach the internet.
 
@@ -303,11 +303,12 @@ Controls your deployment (i.e. all Worker Nodes).
 Which help with managing the Worker Nodes.
 
 **Services**
-A logical set of Pods with a unique Pod and container specific IP address so they are reachable from the outside world.
+A logical set of Pods with a unique Pod and container specific IP address so they are reachable from the outside world. Everytime a pod is replaced its IP address changes so it is important to have services otherwise pods are very hard to reach (and impossible to reach outside of the cluster).
 
 All the above form a **Cluster**, which makes up the deployment.
 
 Here is a picture that better explains the above:
+
 ![img](.github/screenshots/k8s_core_concepts.png)
 
 ---
@@ -329,6 +330,130 @@ We have the following in the master node:
 - Scheduler: Watches for new Pods, selects Worker Nodes to run them on
 - Kube-Controller-Manager: Watches and controls worker nodes, correct number of pods etc.
 - Cloud-Controller-Manager: Cloud Provider specific manager
+
+---
+
+### kubectl
+
+A tool for sending the instructions to the cluster.
+
+## Deployment
+
+For K8s deployment, you can use either the imperative or the declarative approach.
+
+### Imperative approach
+
+The imperative involves writing all the commands manually. See [here for an example of the imperative approach](module-12/kub-action-01/README.md).
+
+**Crash error in a container**
+
+When something goes wrong with a deployed container and a pod crashes, K8s will continually try to bring it back up again, waiting a bit longer each time before restarting.
+
+```bash
+kubectl get pods
+```
+
+**Scaling**
+
+You can set the replicas (an instance of a Pod/Container):
+```bash
+kubectlscale deployment/[name] --replicas=[number_of_pods]
+```
+If you have a load balancer (i.e. you created the service with `--type=LoadBalancer`) the pods should get an equal traffic distribution.
+
+**Updating deployed code**
+
+First you need to rebuild your Docker image, tag it and push it to DockerHub. Then you can update the image:
+```bash
+kubectl set image deployment/[name] [image_name]=[dockerhub_username]/[image_name]:[tag]
+```
+Important: New images are only downloaded by K8s if they have a new tag.
+
+**Rollback and History**
+
+You can check the status of a deployment:
+```bash
+kubectl rollout status deployment/[name]
+```
+
+The old pods do not shut down until the new pods are succesfully running.
+
+To rollback (undos the latest deployment):
+```bash
+kubectl rollout undo deploment/[name]
+```
+
+To go back to an older deploment, first check history (the revision argument is optional - it just gives more detail) to see which tag you want to go back to:
+```bash
+kubectl rollout history deployment/[name] --revision=3
+```
+
+Then go back to the specific revision/tag:
+```bash
+kubectl rollout undo deployment/[name] --to-revision=1
+```
+
+**Deleting**
+
+To delete the service:
+```bash
+kubectl delete service [name]
+```
+
+Delete the deployment:
+```bash
+kubectl delete deployment [name]
+```
+
+### Declarative approach
+
+The declarative approach means orchestrating everything via a **resource definition** file. This is how would normally work with K8s deployments. See [here for an example of the declarative approach](module-12/kub-action-02/README.md).
+
+**Scaling**
+
+You can update the replicas in the `deployment.yaml` and then re-apply the deployment:
+```bash
+kubectl apply -f=deployment.yaml
+```
+
+**Updating deployed code**
+
+First you need to rebuild your Docker image, tag it and push it to DockerHub. Then you can update the image in the `deployment.yaml` and then re-apply the deployment:
+```bash
+kubectl apply -f=deployment.yaml
+```
+
+**Deleting resources**
+
+You can delete a resource imperatively:
+```bash
+kubectl delete deployment [name]
+```
+
+Or, declaratively (and you can delete multiple at once):
+```bash
+kubectl delete -f=deployment.yaml,service.yaml
+```
+
+Or you can delete by selector/label:
+```bash
+kubectl delete deployments,services -l group=[group_name]
+```
+For this to work you must specify in your `deployment.yaml` and `service.yaml` file the below:
+```
+metadata:
+  name: [name]
+  labels:
+    group: [group_name]
+```
+
+---
+
+Instead of having multiple files, you can have one file instead. See [here for an example](module-12/kub-action-03/master-deployment.yaml).
+
+---
+
+For further resource definition file options see [here for an example](module-12/kub-action-04/deployment.yaml).
 
 ---
 

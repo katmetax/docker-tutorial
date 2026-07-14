@@ -1,0 +1,21 @@
+apiVersion: apps/v1 # See K8s docs for latest version
+kind: Deployment # Declaring what kind of resource we are defining
+metadata:
+  name: second-app-deployment
+spec:
+  replicas: 1
+  selector: # Tells K8s which pod should be controlled with this deployment. It tells the deployment which pods belong to it.
+    matchLabels:
+      app: second-app
+      tier: backend
+  template: # Always is a pod object
+    metadata: 
+      labels:
+        app: second-app
+        tier: backend
+    spec: # How the pod is configured
+      containers:
+        - name: second-node
+          image: academind/kub-first-app:2 # Needs to be from a repo (e.g. Dockerhub)
+        # - name: ... # You can have multiple containers
+        #   image: ...
